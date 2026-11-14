@@ -1,6 +1,4 @@
 
-javascript  
-
 const levelsData = {
     1: {
         id: 1,
@@ -110,7 +108,7 @@ const levelsData = {
 
 let unlockedLevel = 1;
 let completedMissions = new Set();
-let currentLevel = levelsData[1];
+let currentLevel = levelsData["1"];
 let selectedParts = new Set(["chassis_6u"]);
 let launchTimer = null;
 
@@ -148,7 +146,7 @@ return <div class="mission-card ${isUnlocked ? 'unlocked' : 'locked'}"> <div> <d
 
 ---
 
-### الجزء الثاني من `script.js`
+### الجزء الثاني من `script.js` (ضعيه أسفل الجزء الأول مباشرة في نفس الملف)
 
 ```javascript
 function selectLevel(levelId) {
@@ -454,4 +452,4 @@ completedMissions.add(currentLevel.id);
 if (currentLevel.id === unlockedLevel && unlockedLevel < 3) unlockedLevel++;
 }
 }
-window.onload = () => updateHomeScreen()
+window.onload = () => updateHomeScreen();
