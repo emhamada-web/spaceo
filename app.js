@@ -13,7 +13,9 @@ function goToScreen(screenId) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function formatMoney(amount) { return "$" + Number(amount).toLocaleString("en-US"); }
+function formatMoney(amount) { 
+    return "$" + Number(amount).toLocaleString("en-US"); 
+}
 
 function updateHomeScreen() {
     const percent = Math.round((completedMissions.size / 3) * 100);
@@ -26,7 +28,9 @@ function updateHomeScreen() {
     document.getElementById("home-budget-glow").style.width = ratio + "%";
 }
 
-function openCurrentLab() { selectLevel(currentLevel.id); }
+function openCurrentLab() { 
+    selectLevel(currentLevel.id); 
+}
 
 function renderMissions() {
     const container = document.getElementById("mission-selector");
@@ -68,7 +72,9 @@ function playMissionVideo(type) {
     modal.style.display = "flex";
 }
 
-function closeMissionVideo() { document.getElementById("story-video-modal").style.display = "none"; }
+function closeMissionVideo() { 
+    document.getElementById("story-video-modal").style.display = "none"; 
+}
 
 function resetCurrentBuild() {
     selectedParts.clear();
@@ -115,12 +121,26 @@ function calculatePhysics() {
     selectedParts.forEach(function(id) {
         const p = currentLevel.parts.find(function(item) { return item.id === id; });
         if (!p) return;
-        totalCost += p.cost; totalMass += p.mass; powerGenDay += p.powerGenDay; powerUseDay += p.powerUseDay; totalBatteryWh += p.batteryWh; totalPoints += p.points;
+        totalCost += p.cost; 
+        totalMass += p.mass; 
+        powerGenDay += p.powerGenDay; 
+        powerUseDay += p.powerUseDay; 
+        totalBatteryWh += p.batteryWh; 
+        totalPoints += p.points;
         powerUseNight += (currentLevel.id === 2 && p.category === "heavy_science" && shutdownNight) ? 0 : p.powerUseNight;
     });
     const energyNight = powerUseNight * currentLevel.eclipseHours;
     const batteryRemaining = totalBatteryWh - energyNight;
-    return { totalCost: totalCost, totalMass: Number(totalMass.toFixed(2)), powerGenDay: powerGenDay, powerUseDay: powerUseDay, totalBatteryWh: totalBatteryWh, energyNight: Number(energyNight.toFixed(1)), batteryRemaining: Number(batteryRemaining.toFixed(1)), totalPoints: totalPoints };
+    return { 
+        totalCost: totalCost, 
+        totalMass: Number(totalMass.toFixed(2)), 
+        powerGenDay: powerGenDay, 
+        powerUseDay: powerUseDay, 
+        totalBatteryWh: totalBatteryWh, 
+        energyNight: Number(energyNight.toFixed(1)), 
+        batteryRemaining: Number(batteryRemaining.toFixed(1)), 
+        totalPoints: totalPoints 
+    };
 }
 
 function updateDashboard() {
@@ -144,17 +164,18 @@ function updateDashboard() {
     document.getElementById("bar-power").className = "mini-fill " + (stats.powerUseDay > stats.powerGenDay ? "over" : "");
 
     const batBox = document.getElementById("night-battery-box");
-    if (currentLevel.id === 3) { batBox.style.display = "none"; }
-    else {
+    if (currentLevel.id === 3) { 
+        batBox.style.display = "none"; 
+    } else {
         batBox.style.display = "block";
         const rem = Math.max(0, stats.batteryRemaining);
         document.getElementById("stat-battery").textContent = rem + " Wh / " + stats.totalBatteryWh + " Wh";
         document.getElementById("stat-battery").className = stats.batteryRemaining < 0 ? "red-text" : "green-text";
         document.getElementById("bar-battery").style.width = stats.totalBatteryWh > 0 ? Math.min(100, (rem / stats.totalBatteryWh) * 100) + "%" : "0%";
-        document.getElementById("bar-battery").className = "mini-fill " + (stats.batteryRemaining < 0 ? "over" : "");
-    }
-    document.getElementById("stat-points").textContent = stats.totalPoints + " PTS";
-Use code with caution.
+
+document.getElementById("bar-battery").className = "mini-fill " + (stats.batteryRemaining < 0 ? "over" : "");
+}
+document.getElementById("stat-points").textContent = stats.totalPoints + " PTS";
 document.getElementById("bar-points").style.width = Math.min(100, (stats.totalPoints / 65) * 100) + "%";
 const hint = document.getElementById("atlas-hint-text");
 if (stats.totalCost > currentLevel.budget) hint.textContent = "⚠️ ATLAS Hint: Budget overrun detected! Reduce payload cost.";
@@ -182,13 +203,11 @@ document.getElementById("prelaunch-report-list").innerHTML =
 'COMMUNICATION LINK:' + (hasComms ? '✓' : '✖') + '' + (hasComms ? 'Telemetry Locked (OK)' : 'Link Missing') + '';
 const statusBanner = document.getElementById("system-status-banner");
 if (massOk && powerOk && hasScience && hasComms) {
-statusBanner.className = "status-green-box";
-statusBanner.innerHTML = 'SYSTEM STATUS:
-ALL GREEN - READY FOR LAUNCH';
+    statusBanner.className = "status-green-box";
+    statusBanner.innerHTML = '<strong>SYSTEM STATUS:</strong><br><span>ALL GREEN - READY FOR LAUNCH</span>';
 } else {
-statusBanner.className = "status-green-box warn";
-statusBanner.innerHTML = 'SYSTEM STATUS:
-WARNING - ANOMALIES DETECTED';
+    statusBanner.className = "status-green-box warn";
+    statusBanner.innerHTML = '<strong>SYSTEM STATUS:</strong><br><span>WARNING - ANOMALIES DETECTED</span>';
 }
 let sec = 10;
 const clockEl = document.getElementById("countdown-timer");
@@ -199,42 +218,87 @@ launchTimer = setInterval(function() {
 sec--;
 clockEl.textContent = sec >= 10 ? ("00:00:" + sec) : ("00:00:0" + Math.max(0, sec));
 barEl.style.width = (sec / 10) * 100 + "%";
-if (sec <= 0) { clearInterval(launchTimer); generateFinalReport(); }
+if (sec <= 0) {
+clearInterval(launchTimer);
+generateFinalReport();
+}
 }, 600);
 }
-function abortLaunch() { if (launchTimer) clearInterval(launchTimer); goToScreen("screen-assembly"); }
+function abortLaunch() {
+if (launchTimer) clearInterval(launchTimer);
+goToScreen("screen-assembly");
+}
 function generateFinalReport() {
 const stats = calculatePhysics();
 let failed = false, atlasMsg = "", stars = "★";
 let logs = [{ text: "LAUNCH SEQUENCE ACTIVE", type: "ok" }];
 if (stats.totalMass > currentLevel.rocketCapacity) {
-failed = true; atlasMsg = "الصاروخ وقف على المنصة وبصّلك. وزنك أكبر من اللي يقدر يشيله (TWR < 1).";
+failed = true;
+atlasMsg = "الصاروخ وقف على المنصة وبصّلك. وزنك أكبر من اللي يقدر يشيله (TWR < 1).";
 logs.push({ text: "TWR < 1: PAYLOAD MASS EXCEEDED", type: "err" });
 } else if (stats.totalCost > currentLevel.budget) {
-failed = true; atlasMsg = "الحسابات خلصت قبل ما الصاروخ يتجمّع. تجاوزت الميزانية المحددة!";
+failed = true;
+atlasMsg = "الحسابات خلصت قبل ما الصاروخ يتجمّع. تجاوزت الميزانية المحددة!";
 logs.push({ text: "BUDGET OVERRUN DETECTED", type: "err" });
 } else if (currentLevel.id === 1) {
-if (!selectedParts.has("solar_1")) { failed = true; atlasMsg = "البطارية 86 Wh بتكفي حوالي 3 ساعات بالحمل الكامل. بعدها القمر بيموت في المدار."; logs.push({ text: "NO SOLAR ARRAY: BATTERY DEPLETED 🔴", type: "err" }); }
-else if (!selectedParts.has("comm_1")) { failed = true; atlasMsg = "فيه هوائي، بس مفيش جهاز يبعت. هوائي من غير مرسل زي ورقة من غير قلم."; logs.push({ text: "NO TRANSCEIVER: SIGNAL LOST 🔴", type: "err" }); }
-else if (!selectedParts.has("ant_1")) { failed = true; atlasMsg = "القمر وصل المدار وصوّر 40 صورة، بس البيانات لسه محبوسة جواه. نجاح هندسي، فشل علمي. البيانات اللي ما وصلتش ما حصلتش."; logs.push({ text: "NO ANTENNA: DATA TRAPPED 🔴", type: "err" }); }
-else if (stats.totalPoints === 0) { stars = "★"; atlasMsg = "ينجح تقنياً، لكن من غير قيمة علمية! لم تقم بتركيب كاميرا أو مطياف."; logs.push({ text: "ORBIT STABLE: 0 SCIENCE INSTRUMENTS", type: "warn" }); }
-else { stars = stats.totalPoints >= 25 ? "★★★" : "★★"; atlasMsg = "تصميم مثالي! تم إرسال بيانات حرارة الأرض والغطاء النباتي للمحطة الأرضية بنجاح."; logs.push({ text: "CLIMATE DATA STREAMING [+" + stats.totalPoints + " PTS]", type: "ok" }); }
+if (!selectedParts.has("solar_1")) {
+failed = true;
+atlasMsg = "البطارية 86 Wh بتكفي حوالي 3 ساعات بالحمل الكامل. بعدها القمر بيموت في المدار.";
+logs.push({ text: "NO SOLAR ARRAY: BATTERY DEPLETED 🔴", type: "err" });
+} else if (!selectedParts.has("comm_1")) {
+failed = true;
+atlasMsg = "فيه هوائي، بس مفيش جهاز يبعت. هوائي من غير مرسل زي ورقة من غير قلم.";
+logs.push({ text: "NO TRANSCEIVER: SIGNAL LOST 🔴", type: "err" });
+} else if (!selectedParts.has("ant_1")) {
+failed = true;
+atlasMsg = "القمر وصل المدار وصوّر 40 صورة، بس البيانات لسه محبوسة جواه. نجاح هندسي، فشل علمي. البيانات اللي ما وصلتش ما حصلتش.";
+logs.push({ text: "NO ANTENNA: DATA TRAPPED 🔴", type: "err" });
+} else if (stats.totalPoints === 0) {
+stars = "★";
+atlasMsg = "ينجح تقنياً، لكن من غير قيمة علمية! لم تقم بتركيب كاميرا أو مطياف.";
+logs.push({ text: "ORBIT STABLE: 0 SCIENCE INSTRUMENTS", type: "warn" });
+} else {
+stars = stats.totalPoints >= 25 ? "★★★" : "★★";
+atlasMsg = "تصميم مثالي! تم إرسال بيانات حرارة الأرض والغطاء النباتي للمحطة الأرضية بنجاح.";
+logs.push({ text: "CLIMATE DATA STREAMING [+" + stats.totalPoints + " PTS]", type: "ok" });
+}
 } else if (currentLevel.id === 2) {
-if (!selectedParts.has("solar_2")) { failed = true; atlasMsg = "عربة من غير شمس. بطارية 500 Wh هتخلص في ساعات."; logs.push({ text: "SOLAR PANELS MISSING 🔴", type: "err" }); }
-else if (!selectedParts.has("bat_2")) { failed = true; atlasMsg = "أول غروب شمس، وكل حاجة اتقفلت. لا توجد بطارية لتخزين الطاقة."; logs.push({ text: "BATTERY PACK MISSING 🔴", type: "err" }); }
-else if (stats.batteryRemaining < 0) { failed = true; atlasMsg = "العربة اتجمدت. التدفئة وقفت قبل الفجر بساعات بسبب نفاد البطارية ليلاً."; logs.push({ text: "E_REMAINING < 0 (" + stats.batteryRemaining + " Wh) 🔴", type: "err" }); }
-else if (!selectedParts.has("comm_ant_2")) { failed = true; atlasMsg = "حفرنا الجليد وماحدش عرف. البيانات اللي ما وصلتش ما حصلتش."; logs.push({ text: "COMMS & ANTENNA MISSING 🔴", type: "err" }); }
-else {
+if (!selectedParts.has("solar_2")) {
+failed = true;
+atlasMsg = "عربة من غير شمس. بطارية 500 Wh هتخلص في ساعات.";
+logs.push({ text: "SOLAR PANELS MISSING 🔴", type: "err" });
+} else if (!selectedParts.has("bat_2")) {
+failed = true;
+atlasMsg = "أول غروب شمس، وكل حاجة اتقفلت. لا توجد بطارية لتخزين الطاقة.";
+logs.push({ text: "BATTERY PACK MISSING 🔴", type: "err" });
+} else if (stats.batteryRemaining < 0) {
+failed = true;
+atlasMsg = "العربة اتجمدت. التدفئة وقفت قبل الفجر بساعات بسبب نفاد البطارية ليلاً.";
+logs.push({ text: "E_REMAINING < 0 (" + stats.batteryRemaining + " Wh) 🔴", type: "err" });
+} else if (!selectedParts.has("comm_ant_2")) {
+failed = true;
+atlasMsg = "حفرنا الجليد وماحدش عرف. البيانات اللي ما وصلتش ما حصلتش.";
+logs.push({ text: "COMMS & ANTENNA MISSING 🔴", type: "err" });
+} else {
 const hasMargin = stats.batteryRemaining >= 50;
 stars = (stats.totalPoints >= 60 && hasMargin) ? "★★★" : (stats.totalPoints >= 60 ? "★★" : "★");
 atlasMsg = "نجاح باهر! صمدت العربة طوال 12 ساعة ليل قمري وتبقى " + stats.batteryRemaining + " Wh في البطارية.";
 logs.push({ text: "LUNAR NIGHT SURVIVED: " + stats.batteryRemaining + " Wh LEFT", type: "ok" });
 }
 } else if (currentLevel.id === 3) {
-if (selectedParts.has("drill_3")) { failed = true; atlasMsg = "المسبار وصل المشتري بعد 6 سنين من الرحلة. وفي اللحظة اللي شغّلت فيها الحفار، الكهربا اتقطعت عن الاتصالات. القدرة المتاحة سقف مش اقتراح."; logs.push({ text: "POWER OVERLOAD: DRILL EXCEEDED 110W 🔴", type: "err" }); }
-else if (!selectedParts.has("rtg_3") || stats.powerUseDay > stats.powerGenDay) { failed = true; atlasMsg = "ألواحك بتجمع ضوء شمس على بُعد 780 مليون كيلومتر. الشمس هناك لمبة بعيدة، مش مصدر طاقة (تعطي 17 W فقط!)."; logs.push({ text: "INVERSE SQUARE LAW: SOLAR INSUFFICIENT 🔴", type: "err" }); }
-else if (!selectedParts.has("comm_ant_3")) { failed = true; atlasMsg = "وصلنا يوروبا، لكن البيانات لم تصل للأرض. البيانات اللي ما وصلتش ما حصلتش."; logs.push({ text: "DEEP SPACE COMMS MISSING 🔴", type: "err" }); }
-else {
+if (selectedParts.has("drill_3")) {
+failed = true;
+atlasMsg = "المسبار وصل المشتري بعد 6 سنين من الرحلة. وفي اللحظة اللي شغّلت فيها الحفار، الكهربا اتقطعت عن الاتصالات. القدرة المتاحة سقف مش اقتراح.";
+logs.push({ text: "POWER OVERLOAD: DRILL EXCEEDED 110W 🔴", type: "err" });
+} else if (!selectedParts.has("rtg_3") || stats.powerUseDay > stats.powerGenDay) {
+failed = true;
+atlasMsg = "ألواحك بتجمع ضوء شمس على بُعد 780 مليون كيلومتر. الشمس هناك لمبة بعيدة، مش مصدر طاقة (تعطي 17 W فقط!).";
+logs.push({ text: "INVERSE SQUARE LAW: SOLAR INSUFFICIENT 🔴", type: "err" });
+} else if (!selectedParts.has("comm_ant_3")) {
+failed = true;
+atlasMsg = "وصلنا يوروبا، لكن البيانات لم تصل للأرض. البيانات اللي ما وصلتش ما حصلتش.";
+logs.push({ text: "DEEP SPACE COMMS MISSING 🔴", type: "err" });
+} else {
 const powerMargin = (stats.powerGenDay - stats.powerUseDay) / stats.powerGenDay;
 const noUseless = !selectedParts.has("solar_3") && !selectedParts.has("drill_3");
 if (selectedParts.has("radar_3") && selectedParts.has("cam_3") && powerMargin >= 0.1 && noUseless) stars = "★★★";
