@@ -119,6 +119,8 @@ function togglePart(partId) {
     updateDashboard();
 }
 
+
+javascript
 function calculatePhysics() {
     let totalCost = currentLevel.rocketCost;
     let totalMass = 0, powerGenDay = 0, powerUseDay = 0, powerUseNight = 0, totalBatteryWh = 0, totalPoints = 0;
@@ -161,71 +163,86 @@ function updateDashboard() {
         const rem = Math.max(0, stats.batteryRemaining);
         document.getElementById("stat-battery").textContent = `${rem} Wh / ${stats.totalBatteryWh} Wh`;
         document.getElementById("stat-battery").className = stats.batteryRemaining < 0 ? "red-text" : "green-text";
-Use code with caution.
-document.getElementById("bar-battery").style.width = stats.totalBatteryWh > 0 ? Math.min(100, (rem / stats.totalBatteryWh) * 100) + "%" : "0%";
-document.getElementById("bar-battery").className = "mini-fill " + (stats.batteryRemaining < 0 ? "over" : "");
+        document.getElementById("bar-battery").style.width = stats.totalBatteryWh > 0 ? Math.min(100, (rem / stats.totalBatteryWh) * 100) + "%" : "0%";
+        document.getElementById("bar-battery").className = "mini-fill " + (stats.batteryRemaining < 0 ? "over" : "");
+    }
+    document.getElementById("stat-points").textContent = `${stats.totalPoints} PTS`;
+    document.getElementById("bar-points").style.width = Math.min(100, (stats.totalPoints / 65) * 100) + "%";
+
+    const hint = document.getElementById("atlas-hint-text");
+    if (stats.totalCost > currentLevel.budget) hint.textContent = "⚠️ ATLAS Hint: Budget overrun detected! Reduce payload cost.";
+    else if (stats.totalMass > currentLevel.rocketCapacity) hint.textContent = "⚠️ ATLAS Hint: Payload mass exceeds rocket capacity (TWR < 1).";
+    else if (stats.powerUseDay > stats.powerGenDay) hint.textContent = "⚠️ ATLAS Hint: Power deficit! Consumption exceeds generation.";
+    else if (currentLevel.id === 2 && stats.batteryRemaining < 0) hint.textContent = "⚠️ ATLAS Hint: Night battery will deplete! Hibernate heavy tools at night.";
+    else if (stats.totalPoints === 0) hint.textContent = "💡 ATLAS Hint: Engineering looks solid, but no science instruments are attached.";
+    else hint.textContent = "✅ ATLAS Hint: All equations balanced. Launch window is open.";
 }
-document.getElementById("stat-points").textContent = ${stats.totalPoints} PTS;
-document.getElementById("bar-points").style.width = Math.min(100, (stats.totalPoints / 65) * 100) + "%";
-const hint = document.getElementById("atlas-hint-text");
-if (stats.totalCost > currentLevel.budget) hint.textContent = "⚠️ ATLAS Hint: Budget overrun detected! Reduce payload cost.";
-else if (stats.totalMass > currentLevel.rocketCapacity) hint.textContent = "⚠️ ATLAS Hint: Payload mass exceeds rocket capacity (TWR < 1).";
-else if (stats.powerUseDay > stats.powerGenDay) hint.textContent = "⚠️ ATLAS Hint: Power deficit! Consumption exceeds generation.";
-else if (currentLevel.id === 2 && stats.batteryRemaining < 0) hint.textContent = "⚠️ ATLAS Hint: Night battery will deplete! Hibernate heavy tools at night.";
-else if (stats.totalPoints === 0) hint.textContent = "💡 ATLAS Hint: Engineering looks solid, but no science instruments are attached.";
-else hint.textContent = "✅ ATLAS Hint: All equations balanced. Launch window is open.";
-}
+
 function goToFinalCheck() {
-const stats = calculatePhysics();
-goToScreen("screen-launch");
-document.getElementById("check-mission-header").textContent = ${currentLevel.code}: FINAL SYSTEMS CHECK;
-document.getElementById("launch-craft-icon").textContent = currentLevel.icon;
-document.getElementById("orbit-physics-info").textContent = currentLevel.orbitPhysics;
-const massOk = stats.totalMass <= currentLevel.rocketCapacity;
-const powerOk = stats.powerUseDay <= stats.powerGenDay && (currentLevel.id === 3 || stats.batteryRemaining >= 0);
-const hasScience = stats.totalPoints > 0;
-const hasComms = selectedParts.has("comm_1") || selectedParts.has("comm_ant_2") || selectedParts.has("comm_ant_3");
-document.getElementById("prelaunch-report-list").innerHTML =  <div class="hud-box"><div class="hud-box-row"><span>LAUNCH VEHICLE:</span><strong class="green-text">✓</strong></div><small>${currentLevel.rocketName} (OK)</small></div> <div class="hud-box"><div class="hud-box-row"><span>STRUCTURAL INTEGRITY:</span><strong class="${massOk ? 'green-text' : 'red-text'}">${massOk ? '✓' : '✖'}</strong></div><small>Mass ${stats.totalMass} kg / ${currentLevel.rocketCapacity} kg</small></div> <div class="hud-box"><div class="hud-box-row"><span>POWER SYSTEMS:</span><strong class="${powerOk ? 'green-text' : 'red-text'}">${powerOk ? '✓' : '✖'}</strong></div><small>${powerOk ? 'Nominal Output (OK)' : 'Power Deficit Warning'}</small></div> <div class="hud-box"><div class="hud-box-row"><span>PAYLOAD SENSORS:</span><strong class="${hasScience ? 'green-text' : 'red-text'}">${hasScience ? '✓' : '✖'}</strong></div><small>${hasScience ? 'Instruments Armed (OK)' : 'No Science Payload'}</small></div> <div class="hud-box"><div class="hud-box-row"><span>COMMUNICATION LINK:</span><strong class="${hasComms ? 'green-text' : 'red-text'}">${hasComms ? '✓' : '✖'}</strong></div><small>${hasComms ? 'Telemetry Locked (OK)' : 'Link Missing'}</small></div>;
-const statusBanner = document.getElementById("system-status-banner");
-if (massOk && powerOk && hasScience && hasComms) {
-statusBanner.className = "status-green-box";
-statusBanner.innerHTML = <strong>SYSTEM STATUS:</strong><br><span>ALL GREEN - READY FOR LAUNCH</span>;
-} else {
-statusBanner.className = "status-green-box warn";
-statusBanner.innerHTML = <strong>SYSTEM STATUS:</strong><br><span>WARNING - ANOMALIES DETECTED</span>;
+    const stats = calculatePhysics();
+    goToScreen("screen-launch");
+    document.getElementById("check-mission-header").textContent = `${currentLevel.code}: FINAL SYSTEMS CHECK`;
+    document.getElementById("launch-craft-icon").textContent = currentLevel.icon;
+    document.getElementById("orbit-physics-info").textContent = currentLevel.orbitPhysics;
+
+    const massOk = stats.totalMass <= currentLevel.rocketCapacity;
+    const powerOk = stats.powerUseDay <= stats.powerGenDay && (currentLevel.id === 3 || stats.batteryRemaining >= 0);
+    const hasScience = stats.totalPoints > 0;
+    const hasComms = selectedParts.has("comm_1") || selectedParts.has("comm_ant_2") || selectedParts.has("comm_ant_3");
+
+    document.getElementById("prelaunch-report-list").innerHTML = `
+        <div class="hud-box"><div class="hud-box-row"><span>LAUNCH VEHICLE:</span><strong class="green-text">✓</strong></div><small>${currentLevel.rocketName} (OK)</small></div>
+        <div class="hud-box"><div class="hud-box-row"><span>STRUCTURAL INTEGRITY:</span><strong class="${massOk ? 'green-text' : 'red-text'}">${massOk ? '✓' : '✖'}</strong></div><small>Mass ${stats.totalMass} kg / ${currentLevel.rocketCapacity} kg</small></div>
+        <div class="hud-box"><div class="hud-box-row"><span>POWER SYSTEMS:</span><strong class="${powerOk ? 'green-text' : 'red-text'}">${powerOk ? '✓' : '✖'}</strong></div><small>${powerOk ? 'Nominal Output (OK)' : 'Power Deficit Warning'}</small></div>
+        <div class="hud-box"><div class="hud-box-row"><span>PAYLOAD SENSORS:</span><strong class="${hasScience ? 'green-text' : 'red-text'}">${hasScience ? '✓' : '✖'}</strong></div><small>${hasScience ? 'Instruments Armed (OK)' : 'No Science Payload'}</small></div>
+        <div class="hud-box"><div class="hud-box-row"><span>COMMUNICATION LINK:</span><strong class="${hasComms ? 'green-text' : 'red-text'}">${hasComms ? '✓' : '✖'}</strong></div><small>${hasComms ? 'Telemetry Locked (OK)' : 'Link Missing'}</small></div>`;
+
+    const statusBanner = document.getElementById("system-status-banner");
+    if (massOk && powerOk && hasScience && hasComms) {
+        statusBanner.className = "status-green-box";
+        statusBanner.innerHTML = `<strong>SYSTEM STATUS:</strong><br><span>ALL GREEN - READY FOR LAUNCH</span>`;
+    } else {
+        statusBanner.className = "status-green-box warn";
+        statusBanner.innerHTML = `<strong>SYSTEM STATUS:</strong><br><span>WARNING - ANOMALIES DETECTED</span>`;
+    }
+
+    let sec = 10;
+    const clockEl = document.getElementById("countdown-timer");
+    const barEl = document.getElementById("clock-bar");
+    clockEl.textContent = "00:00:10";
+    barEl.style.width = "100%";
+
+    launchTimer = setInterval(() => {
+        sec--;
+        clockEl.textContent = sec >= 10 ? `00:00:${sec}` : `00:00:0${Math.max(0, sec)}`;
+        barEl.style.width = (sec / 10) * 100 + "%";
+        if (sec <= 0) { clearInterval(launchTimer); generateFinalReport(); }
+    }, 600);
 }
-let sec = 10;
-const clockEl = document.getElementById("countdown-timer");
-const barEl = document.getElementById("clock-bar");
-clockEl.textContent = "00:00:10";
-barEl.style.width = "100%";
-launchTimer = setInterval(() => {
-sec--;
-clockEl.textContent = sec >= 10 ? 00:00:${sec} : 00:00:0${Math.max(0, sec)};
-barEl.style.width = (sec / 10) * 100 + "%";
-if (sec <= 0) { clearInterval(launchTimer); generateFinalReport(); }
-}, 600);
-}
+
 function abortLaunch() { if (launchTimer) clearInterval(launchTimer); goToScreen("screen-assembly"); }
+
 function generateFinalReport() {
-const stats = calculatePhysics();
-let failed = false, atlasMsg = "", stars = "★";
-let logs = [{ text: "LAUNCH SEQUENCE ACTIVE", type: "ok" }];
-if (stats.totalMass > currentLevel.rocketCapacity) {
-failed = true; atlasMsg = "الصاروخ وقف على المنصة وبصّلك. وزنك أكبر من اللي يقدر يشيله (TWR < 1).";
-logs.push({ text: "TWR < 1: PAYLOAD MASS EXCEEDED", type: "err" });
-} else if (stats.totalCost > currentLevel.budget) {
-failed = true; atlasMsg = "الحسابات خلصت قبل ما الصاروخ يتجمّع. تجاوزت الميزانية المحددة!";
-logs.push({ text: "BUDGET OVERRUN DETECTED", type: "err" });
-} else if (currentLevel.id === 1) {
-if (!selectedParts.has("solar_1")) { failed = true; atlasMsg = "البطارية 86 Wh بتكفي حوالي 3 ساعات بالحمل الكامل. بعدها القمر بيموت في المدار."; logs.push({ text: "NO SOLAR ARRAY: BATTERY DEPLETED 🔴", type: "err" }); }
-else if (!selectedParts.has("comm_1")) { failed = true; atlasMsg = "فيه هوائي، بس مفيش جهاز يبعت. هوائي من غير مرسل زي ورقة من غير قلم."; logs.push({ text: "NO TRANSCEIVER: SIGNAL LOST 🔴", type: "err" }); }
-else if (!selectedParts.has("ant_1")) { failed = true; atlasMsg = "القمر وصل المدار وصوّر 40 صورة، بس البيانات لسه محبوسة جواه. نجاح هندسي، فشل علمي. البيانات اللي ما وصلتش ما حصلتش."; logs.push({ text: "NO ANTENNA: DATA TRAPPED 🔴", type: "err" }); }
-else if (stats.totalPoints === 0) { stars = "★"; atlasMsg = "ينجح تقنياً، لكن من غير قيمة علمية! لم تقم بتركيب كاميرا أو مطياف."; logs.push({ text: "ORBIT STABLE: 0 SCIENCE INSTRUMENTS", type: "warn" }); }
-else { stars = stats.totalPoints >= 25 ? "★★★" : "★★"; atlasMsg = "تصميم مثالي! تم إرسال بيانات حرارة الأرض والغطاء النباتي للمحطة الأرضية بنجاح."; logs.push({ text: CLIMATE DATA STREAMING [+${stats.totalPoints} PTS], type: "ok" }); }
-} else if (currentLevel.id === 2) {
-if (!selectedParts.has("solar_2")) { failed = true; atlasMsg = "عربة من غير شمس. بطارية 500 Wh هتخلص في ساعات."; logs.push({ text: "SOLAR PANELS MISSING 🔴", type: "err" }); }
-else if (!selectedParts.has("bat_2")) { failed = true; atlasMsg = "أول غروب شمس، وكل حاجة اتقفلت. لا توجد بطارية لتخزين الطاقة."; logs.push({ text: "BATTERY PACK MISSING 🔴", type: "err" }); }
+    const stats = calculatePhysics();
+    let failed = false, atlasMsg = "", stars = "★";
+    let logs = [{ text: "LAUNCH SEQUENCE ACTIVE", type: "ok" }];
+
+    if (stats.totalMass > currentLevel.rocketCapacity) {
+        failed = true; atlasMsg = "الصاروخ وقف على المنصة وبصّلك. وزنك أكبر من اللي يقدر يشيله (TWR < 1).";
+        logs.push({ text: "TWR < 1: PAYLOAD MASS EXCEEDED", type: "err" });
+    } else if (stats.totalCost > currentLevel.budget) {
+        failed = true; atlasMsg = "الحسابات خلصت قبل ما الصاروخ يتجمّع. تجاوزت الميزانية المحددة!";
+        logs.push({ text: "BUDGET OVERRUN DETECTED", type: "err" });
+    } else if (currentLevel.id === 1) {
+        if (!selectedParts.has("solar_1")) { failed = true; atlasMsg = "البطارية 86 Wh بتكفي حوالي 3 ساعات بالحمل الكامل. بعدها القمر بيموت في المدار."; logs.push({ text: "NO SOLAR ARRAY: BATTERY DEPLETED 🔴", type: "err" }); }
+        else if (!selectedParts.has("comm_1")) { failed = true; atlasMsg = "فيه هوائي، بس مفيش جهاز يبعت. هوائي من غير مرسل زي ورقة من غير قلم."; logs.push({ text: "NO TRANSCEIVER: SIGNAL LOST 🔴", type: "err" }); }
+        else if (!selectedParts.has("ant_1")) { failed = true; atlasMsg = "القمر وصل المدار وصوّر 40 صورة، بس البيانات لسه محبوسة جواه. نجاح هندسي، فشل علمي. البيانات اللي ما وصلتش ما حصلتش."; logs.push({ text: "NO ANTENNA: DATA TRAPPED 🔴", type: "err" }); }
+        else if (stats.totalPoints === 0) { stars = "★"; atlasMsg = "ينجح تقنياً، لكن من غير قيمة علمية! لم تقم بتركيب كاميرا أو مطياف."; logs.push({ text: "ORBIT STABLE: 0 SCIENCE INSTRUMENTS", type: "warn" }); }
+        else { stars = stats.totalPoints >= 25 ? "★★★" : "★★"; atlasMsg = "تصميم مثالي! تم إرسال بيانات حرارة الأرض والغطاء النباتي للمحطة الأرضية بنجاح."; logs.push({ text: `CLIMATE DATA STREAMING [+${stats.totalPoints} PTS]`, type: "ok" }); }
+    } else if (currentLevel.id === 2) {
+        if (!selectedParts.has("solar_2")) { failed = true; atlasMsg = "عربة من غير شمس. بطارية 500 Wh هتخلص في ساعات."; logs.push({ text: "SOLAR PANELS MISSING 🔴", type: "err" }); }
+        else if (!selectedParts.has("bat_2")) { failed = true; atlasMsg = "أول غروب شمس، وكل حاجة اتقفلت. لا توجد بطارية لتخزين الطاقة."; logs.push({ text: "BATTERY PACK MISSING 🔴", type: "err" }); }
+Use code with caution.
 else if (stats.batteryRemaining < 0) { failed = true; atlasMsg = "العربة اتجمدت. التدفئة وقفت قبل الفجر بساعات بسبب نفاد البطارية ليلاً."; logs.push({ text: E_REMAINING < 0 (${stats.batteryRemaining} Wh) 🔴, type: "err" }); }
 else if (!selectedParts.has("comm_ant_2")) { failed = true; atlasMsg = "حفرنا الجليد وماحدش عرف. البيانات اللي ما وصلتش ما حصلتش."; logs.push({ text: "COMMS & ANTENNA MISSING 🔴", type: "err" }); }
 else {
@@ -264,3 +281,5 @@ if (!failed) {
 completedMissions.add(currentLevel.id);
 if (currentLevel.id === unlockedLevel && unlockedLevel < 3) unlockedLevel++;
 }
+}
+updateHomeScreen();
